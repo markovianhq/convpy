@@ -20,10 +20,10 @@ class ConversionModel:
         self.model = self._get_model()
 
     def _generate_data(self):
-        l = self.feature_value_list
+        l_ = self.feature_value_list
 
         @pm.stochastic(dtype=np.int)
-        def data_(value=np.zeros(len(l)), l=l):
+        def data_(value=np.zeros(len(l_)), l=l_):
 
             def logp(value, l=l):
                 return np.sum((pm.discrete_uniform_like(0, lower=0, upper=val - 1) for val in l))
