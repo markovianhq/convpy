@@ -1,0 +1,48 @@
+sudo: false
+
+notifications:
+  - email: false
+
+language: python
+
+matrix:
+  allow_failures:
+  - os: osx
+
+  include:
+  - os: linux
+    env: DISTRIB="conda" PYTHON_VERSION="3.5" COVERAGE="true" MINICONDA_URL="https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+  - os: linux
+    env: DISTRIB="conda" PYTHON_VERSION="3.6" MINICONDA_URL="https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+  - os: linux
+    env: DISTRIB="conda" PYTHON_VERSION="3.6" EXAMPLES="true" MINICONDA_URL="https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+
+before_install:
+  - wget $MINICONDA_URL -O miniconda.sh
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - if [[ `which conda` ]]; then echo 'Conda installation successful'; else exit 1; fi
+  - conda create -n testenv --yes python=$PYTHON_VERSION pip wheel nose gxx_linux-64 gcc_linux-64 swig
+  - source activate testenv
+
+python:
+  - "3.5"
+  - "3.6"
+
+install:
+  - conda install --file requirements.txt --yes
+  - conda install --file requirements_test.txt --yes
+  - pip install -r requirements_pip.txt
+  - pip install -r requirements_pip_test.txt
+  - pip install pytest-cov coveralls
+  - python setup.py install
+
+before_script:
+  - flake8 --show-source .
+
+script:
+  - pytest convpy --flake8
+
+after_success:
+  - coveralls
+  - bash <(curl -s https://codecov.io/bash)
