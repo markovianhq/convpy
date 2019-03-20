@@ -41,7 +41,7 @@ before_script:
   - flake8 --show-source .
 
 script:
-  - pytest # --cov=convpy .
+  - py.test # --cov=convpy .
 
 after_success:
   - coveralls
